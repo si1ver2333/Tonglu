@@ -411,6 +411,9 @@ export default {
 .hero-card {
   display: grid;
   grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    'avatar info actions'
+    'stats stats stats';
   gap: 20px;
   position: relative;
 }
@@ -418,6 +421,7 @@ export default {
 .avatar {
   width: 96px;
   height: 96px;
+  grid-area: avatar;
   border-radius: 24px;
   background: linear-gradient(135deg, #6366f1, #22d3ee);
   color: #fff;
@@ -435,6 +439,10 @@ export default {
 .stage-text {
   margin: 0;
   color: var(--gray-600);
+}
+
+.profile-info {
+  grid-area: info;
 }
 
 .intro {
@@ -477,6 +485,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  grid-area: actions;
 }
 
 .identity-card {
@@ -585,7 +594,6 @@ export default {
 }
 
 .stats {
-  grid-column: 1 / -1;
   display: flex;
   gap: 20px;
   list-style: none;
@@ -593,6 +601,7 @@ export default {
   padding: 0;
   border-top: 1px solid #eef2ff;
   padding-top: 12px;
+  grid-area: stats;
 }
 
 .value {
@@ -846,11 +855,14 @@ export default {
 @media (max-width: 900px) {
   .hero-card {
     grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'avatar info'
+      'actions actions'
+      'stats stats';
   }
 
   .hero-actions {
-    flex-direction: row;
-    grid-column: 1 / -1;
+    align-items: flex-start;
   }
 
   .stats {
