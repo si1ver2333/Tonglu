@@ -10,12 +10,15 @@
       </div>
       <div v-else-if="slides.length" class="carousel">
         <div class="slides" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
-          <div v-for="(slide, idx) in slides" :key="slide.title" class="slide">
+          <div v-for="(slide, idx) in slides" :key="slide.id || slide.title" class="slide">
             <div class="slide-body">
-              <p class="eyebrow">{{ slide.tag }}</p>
+              <p class="eyebrow">{{ slide.tag || '精选活动' }}</p>
               <h3>{{ slide.title }}</h3>
-              <p class="desc">{{ slide.desc }}</p>
+              <p class="desc">{{ slide.desc || '敬请期待更多活动与课程' }}</p>
               <button class="ghost-btn" @click="openLink(slide.link)">查看详情</button>
+            </div>
+            <div class="slide-media" v-if="slide.imageUrl">
+              <img :src="slide.imageUrl" :alt="slide.title" />
             </div>
             <div class="badge">{{ idx + 1 }}/{{ slides.length }}</div>
           </div>
@@ -129,6 +132,9 @@ export default {
       this.recommendLoading = true;
       try {
         const data = await getHomeOverview({ identity: this.identityTag });
+        if (data.userIdentity && data.userIdentity !== this.identityTag) {
+          this.$store.commit('setIdentityTag', data.userIdentity);
+        }
         this.slides = data.carousel || [];
         this.hotActivities = data.hotActivities || [];
         const recommended = data.recommendedContent || {};
@@ -179,14 +185,16 @@ export default {
         return {
           tag,
           title: item.title,
-          desc: item.desc || '',
+          desc: item.summary || item.desc || '',
           author: item.author || 'JobHub',
-          stats:
-            item.likeCount || item.collectCount
-              ? `${item.likeCount || 0} 赞 · ${item.collectCount || 0} 收藏`
-              : item.publishTime || '',
           link: item.link,
-          type: item.type
+          type: item.type,
+          cover: item.coverImage,
+          avatar: item.avatarUrl,
+          likeCount: item.likeCount,
+          collectCount: item.collectCount,
+          commentCount: item.commentCount,
+          publishTime: item.publishTime
         };
       });
     },
@@ -360,6 +368,10 @@ export default {
   border-radius: 12px;
   background: var(--gray-50);
   position: relative;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 12px;
+  align-items: center;
 }
 
 .slide-body h3 {
@@ -369,6 +381,20 @@ export default {
 .slide-body .desc {
   margin: 0 0 10px;
   color: var(--gray-700);
+}
+
+.slide-media {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--gray-100);
+}
+
+.slide-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .badge {
@@ -523,6 +549,14 @@ export default {
   .id-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .slide {
+    grid-template-columns: 1fr;
+  }
+
+  .slide-media {
+    height: 140px;
   }
 }
 </style>
