@@ -79,11 +79,11 @@ export default {
     applyProfile() {
       const source = this.profile || {};
       this.form = {
-        nickname: source.nickname || source.displayName || '',
+        nickname: source.nickname || '',
         careerStage: source.stage || source.careerStage || '',
         intro: source.bio || source.intro || '',
         focusArea: source.focusArea || (source.focus ? source.focus.join(' · ') : ''),
-        city: source.city || source.location || ''
+        city: source.city || ''
       };
     },
     async handleSubmit() {
