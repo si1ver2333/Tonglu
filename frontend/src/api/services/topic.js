@@ -13,9 +13,9 @@ export const fetchTopicList = async (params = {}) => {
   return unwrap(payload);
 };
 
-export const fetchTopicDetail = async (id) => {
+export const fetchTopicDetail = async (id, params = {}) => {
   if (!id) return Promise.reject(new Error('id is required'));
-  const payload = await http.get(`/api/v1/topic/${id}`);
+  const payload = await http.get(`/api/v1/topic/${id}`, { params });
   return unwrap(payload);
 };
 
