@@ -188,9 +188,25 @@ const paginate = (list, pageNum = 1, pageSize = 5) => {
   return { total, pageNum, pageSize, list: slice };
 };
 
+const enrichContent = (item, idx) => ({
+  ...item,
+  summary: item.summary || item.desc || '',
+  avatarUrl:
+    item.avatarUrl || `https://img.jobhub.mock/avatar/${(idx % 6) + 1}.png`,
+  coverImage:
+    item.coverImage || `https://img.jobhub.mock/cover/${item.id || idx}.jpg`,
+  commentCount:
+    item.commentCount !== undefined
+      ? item.commentCount
+      : Math.max(2, Math.floor(((item.likeCount || 10) + (item.collectCount || 4)) / 3))
+});
+
 export const getHomeOverview = async ({ identity } = {}) => {
   const key = identityKey(identity);
   const recommendedContent = paginate(recommendSeed[key], 1, 5);
+  recommendedContent.list = recommendedContent.list.map((item, idx) =>
+    enrichContent(item, idx)
+  );
   return withDelay(
     buildSuccess({
       userIdentity: identity || 'student',
@@ -204,5 +220,8 @@ export const getHomeOverview = async ({ identity } = {}) => {
 export const refreshRecommend = async ({ identity, pageNum = 2, pageSize = 5 } = {}) => {
   const key = identityKey(identity);
   const recommendedContent = paginate(recommendSeed[key], pageNum, pageSize);
+  recommendedContent.list = recommendedContent.list.map((item, idx) =>
+    enrichContent(item, idx)
+  );
   return withDelay(buildSuccess(recommendedContent, 'refresh success'));
 };
