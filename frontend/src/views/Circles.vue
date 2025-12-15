@@ -41,7 +41,7 @@
 import CircleCard from '@/components/cards/CircleCard.vue';
 import SkeletonBlock from '@/components/state/SkeletonBlock.vue';
 import EmptyState from '@/components/state/EmptyState.vue';
-import { fetchCirclesByRole } from '@/api/mockService';
+import { fetchGroupList } from '@/api/services/group';
 
 export default {
   name: 'Circles',
@@ -110,9 +110,27 @@ export default {
     },
     async loadCircles() {
       this.loading = true;
-      const identity = this.identityTag || '默认';
-      this.circles = await fetchCirclesByRole(identity);
-      this.loading = false;
+      try {
+        const params = {
+          keyword: this.keyword || undefined,
+          tag: this.selectedTag || this.identityTag || undefined,
+          pageNum: 1,
+          pageSize: 20
+        };
+        const res = await fetchGroupList(params);
+        this.circles = (res.list || []).map((item) => ({
+          id: item.id,
+          title: item.name || '圈子',
+          badge: item.tags?.[0] || item.activityType || '圈子',
+          desc: item.intro || '',
+          meta: `${item.memberCount || 0} 人加入`
+        }));
+      } catch (error) {
+        console.error('[circles] 获取小组失败', error);
+        this.circles = [];
+      } finally {
+        this.loading = false;
+      }
     }
   }
 };
