@@ -17,7 +17,6 @@
       </div>
       <div class="hero-actions">
         <router-link class="ghost-btn" to="/profile/edit">编辑信息</router-link>
-        <router-link class="ghost-btn" to="/profile/settings">隐私设置</router-link>
       </div>
       <ul class="stats">
         <li>
@@ -76,6 +75,16 @@
         </div>
       </div>
     </div>
+
+    <section class="card privacy-card">
+      <div class="privacy-header">
+        <div>
+          <h2>隐私设置</h2>
+          <span>前往隐私设置页集中管理可见范围</span>
+        </div>
+        <router-link class="primary-btn" to="/profile/settings">立即前往</router-link>
+      </div>
+    </section>
 
     <section class="card data-card">
       <header class="data-header">
@@ -605,6 +614,13 @@ export default {
   margin: 0;
   color: var(--gray-600);
   font-size: 13px;
+}
+
+.privacy-card .privacy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 .data-card {
