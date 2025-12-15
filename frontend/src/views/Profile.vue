@@ -7,8 +7,12 @@
         <h1>{{ profile.nickname || '未命名用户' }}</h1>
         <p class="stage-text">{{ profile.stage || profile.careerStage }}</p>
         <p class="intro">{{ profile.bio || profile.intro }}</p>
-        <div class="focus-tags">
-          <span v-for="tag in focusList" :key="tag" class="tag">{{ tag }}</span>
+        <p v-if="locationText" class="location">📍 {{ locationText }}</p>
+        <div v-if="focusList.length" class="focus-block">
+          <p class="focus-label">关注领域</p>
+          <div class="focus-tags">
+            <span v-for="tag in focusList" :key="tag" class="tag">{{ tag }}</span>
+          </div>
         </div>
       </div>
       <div class="hero-actions">
@@ -72,42 +76,6 @@
         </div>
       </div>
     </div>
-
-    <section class="card privacy-card">
-      <div class="privacy-header">
-        <h2>隐私设置</h2>
-        <span>支持隐藏公司、薪资、历史内容等信息</span>
-      </div>
-      <div class="privacy-list">
-        <label class="privacy-row">
-          <div>
-            <p class="title">隐藏具体公司</p>
-            <p class="desc">展示行业/岗位，不展示具体所在企业</p>
-          </div>
-          <button class="switch" @click="togglePrivacy('hideCompany')">
-            {{ settings.hideCompany ? '已隐藏' : '显示' }}
-          </button>
-        </label>
-        <label class="privacy-row">
-          <div>
-            <p class="title">隐藏薪资范围</p>
-            <p class="desc">薪资信息仅自己可见</p>
-          </div>
-          <button class="switch" @click="togglePrivacy('hideSalary')">
-            {{ settings.hideSalary ? '已隐藏' : '显示' }}
-          </button>
-        </label>
-        <label class="privacy-row">
-          <div>
-            <p class="title">隐藏历史发布</p>
-            <p class="desc">隐藏后主页仅展示精选内容</p>
-          </div>
-          <button class="switch" @click="togglePrivacy('hideHistory')">
-            {{ settings.hideHistory ? '已隐藏' : '显示' }}
-          </button>
-        </label>
-      </div>
-    </section>
 
     <section class="card data-card">
       <header class="data-header">
@@ -274,16 +242,24 @@ export default {
     };
   },
   computed: {
-    ...mapState(['profile', 'settings', 'identityTag']),
+    ...mapState(['profile', 'identityTag']),
     avatarLetter() {
       return (this.profile.nickname || 'JH').slice(0, 1).toUpperCase();
     },
     focusList() {
-      if (Array.isArray(this.profile.focus)) return this.profile.focus;
+      if (Array.isArray(this.profile.focus)) return this.profile.focus.filter(Boolean);
+      if (Array.isArray(this.profile.fields)) return this.profile.fields.filter(Boolean);
       if (typeof this.profile.focusArea === 'string') {
-        return this.profile.focusArea.split('·').map((item) => item.trim());
+        const items = this.profile.focusArea
+          .split('·')
+          .map((item) => item.trim())
+          .filter(Boolean);
+        return items;
       }
       return [];
+    },
+    locationText() {
+      return this.profile.city || this.profile.location || '';
     },
     currentTabList() {
       return this.tabData[this.activeTab] || [];
@@ -321,9 +297,6 @@ export default {
       } finally {
         this.tabLoading = false;
       }
-    },
-    togglePrivacy(key) {
-      this.$store.dispatch('savePrivacySettings', { [key]: !this.settings[key] });
     },
     formatStatus(status) {
       const map = {
@@ -458,6 +431,23 @@ export default {
 .intro {
   margin: 8px 0 12px;
   color: var(--gray-700);
+}
+
+.location {
+  margin: 0 0 8px;
+  color: var(--gray-700);
+}
+
+.focus-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.focus-label {
+  margin: 0;
+  color: var(--gray-600);
+  font-size: 13px;
 }
 
 .focus-tags {
@@ -606,45 +596,6 @@ export default {
   margin: 0;
   color: var(--gray-600);
   font-size: 13px;
-}
-
-.privacy-card .privacy-header {
-  margin-bottom: 12px;
-}
-
-.privacy-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.privacy-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid var(--gray-200);
-  border-radius: 12px;
-  padding: 12px 16px;
-}
-
-.privacy-row .title {
-  margin: 0;
-  font-weight: 600;
-}
-
-.privacy-row .desc {
-  margin: 2px 0 0;
-  color: var(--gray-600);
-  font-size: 13px;
-}
-
-.switch {
-  border: none;
-  border-radius: 12px;
-  padding: 8px 12px;
-  background: #eef2ff;
-  color: #4338ca;
-  cursor: pointer;
 }
 
 .data-card {
