@@ -284,6 +284,7 @@ import {
   fetchMyCircles,
   fetchMyCollections,
   fetchMyPublish,
+  updateCareerStage,
 } from "@/api/services/user";
 
 const tabLoaders = {
@@ -353,7 +354,7 @@ export default {
     this.pendingRole = this.identityTag || this.roles[0];
   },
   methods: {
-    ...mapMutations(["setIdentityTag"]),
+    ...mapMutations(["setIdentityTag", "setProfile"]),
     async loadOverview() {
       const data = await this.$store.dispatch("fetchProfileOverview");
       this.stats = data.stats || {};
@@ -465,17 +466,21 @@ export default {
       this.closeIdentity();
     },
     async confirmIdentity() {
-  const role = this.pendingRole || this.roles[0];
-
-  // ★ 新增：写入数据库
-  await updateCareerStage(role);
-
-  // 原逻辑：更新 Vuex（立即刷新 UI）
-  this.setIdentityTag(role);
-
-  this.$root.$refs.toast?.show("身份已更新", "success");
-  this.closeIdentity();
-}
+      const role = this.pendingRole || this.roles[0];
+      try {
+        await updateCareerStage(role);
+        this.setIdentityTag(role);
+        this.setProfile({ stage: role, careerStage: role });
+        this.$root.$refs.toast?.show("身份已更新", "success");
+        this.closeIdentity();
+      } catch (error) {
+        console.error("[profile] 更新身份失败", error);
+        this.$root.$refs.toast?.show(
+          error?.message || "更新身份失败",
+          "error"
+        );
+      }
+    },
   },
 };
 </script>
