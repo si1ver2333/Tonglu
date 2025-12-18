@@ -13,6 +13,7 @@
         <button class="primary-btn create-btn">+ 创建小组</button>
       </div>
     </header>
+
     <div class="tags">
       <button
         v-for="tag in displayTags"
@@ -23,6 +24,7 @@
         {{ tag }}
       </button>
     </div>
+
     <section class="grid">
       <template v-if="loading">
         <skeleton-block v-for="n in 6" :key="'cl-sk-' + n" height="140px" />
@@ -31,7 +33,11 @@
         <empty-state title="暂无圈子" desc="换个身份或稍后再试" />
       </template>
       <template v-else>
-        <circle-card v-for="circle in displayCircles" :key="circle.id" :item="circle" />
+        <circle-card
+          v-for="circle in displayCircles"
+          :key="circle.id"
+          :item="circle"
+        />
       </template>
     </section>
   </div>
@@ -90,7 +96,11 @@ export default {
         );
       }
       if (!kw) return list;
-      return list.filter((c) => c.title.includes(kw) || (c.desc || '').includes(kw));
+      return list.filter(
+        (c) =>
+          c.title.includes(kw) ||
+          (c.desc || '').includes(kw)
+      );
     }
   },
   watch: {
@@ -104,9 +114,11 @@ export default {
   methods: {
     doSearch() {
       this.keyword = this.keyword.trim();
+      this.loadCircles(); // ✅ 新增：搜索时重新请求 API
     },
     selectTag(tag) {
       this.selectedTag = this.selectedTag === tag ? '' : tag;
+      this.loadCircles(); // ✅ 新增：点击标签时重新请求 API
     },
     async loadCircles() {
       this.loading = true;
@@ -237,62 +249,6 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 12px;
-}
-
-.card {
-  background: #fff;
-  border-radius: 14px;
-  padding: 14px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-}
-
-.circle-card .card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.circle-card h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.badge {
-  padding: 4px 8px;
-  border-radius: 10px;
-  background: rgba(37, 99, 235, 0.08);
-  color: var(--blue);
-  font-size: 12px;
-}
-
-.desc {
-  margin: 8px 0;
-  color: var(--gray-700);
-}
-
-.meta {
-  color: var(--gray-500);
-  font-size: 13px;
-}
-
-.actions {
-  margin-top: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.ghost-btn {
-  border: 1px solid var(--gray-200);
-  background: #fff;
-  border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.link {
-  color: var(--blue);
-  font-weight: 600;
 }
 
 @media (max-width: 768px) {

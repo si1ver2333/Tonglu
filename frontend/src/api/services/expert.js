@@ -43,7 +43,7 @@ export const messageExpert = async (expertId, payload) => {
 };
 
 export const fetchExpertDashboard = async () => {
-  const res = await http.get('/api/v1/expert/backend/contentapi/v1/expert/backend/dashboard');
+  const res = await http.get('/api/v1/expert/backend/dashboard');
   return unwrap(res);
 };
 

@@ -26,14 +26,6 @@
           一句话简介
           <textarea v-model.trim="form.intro" rows="3" maxlength="80"></textarea>
         </label>
-        <label>
-          关注领域（用“·”分隔）
-          <input v-model.trim="form.focusArea" placeholder="互联网运营 · 新媒体 · 用户增长" />
-        </label>
-        <label>
-          常驻城市
-          <input v-model.trim="form.city" />
-        </label>
         <div class="actions">
           <button type="button" class="ghost-btn" @click="resetForm">重置</button>
           <button type="submit" class="primary-btn" :disabled="saving">{{ saving ? '保存中...' : '保存' }}</button>

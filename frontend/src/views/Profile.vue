@@ -7,15 +7,9 @@
         <h1>{{ profile.nickname || "未命名用户" }}</h1>
         <p class="stage-text">{{ profile.stage || profile.careerStage }}</p>
         <p class="intro">{{ profile.bio || profile.intro }}</p>
-        <div class="focus-tags">
-          <span v-for="tag in focusList" :key="tag" class="tag">{{ tag }}</span>
-        </div>
       </div>
       <div class="hero-actions">
         <router-link class="ghost-btn" to="/profile/edit">编辑信息</router-link>
-        <router-link class="ghost-btn" to="/profile/settings"
-          >隐私设置</router-link
-        >
       </div>
       <ul class="stats">
         <li>
@@ -470,13 +464,18 @@ export default {
       this.setIdentityTag(null);
       this.closeIdentity();
     },
-    confirmIdentity() {
-      const role = this.pendingRole || this.roles[0];
-      this.setIdentityTag(role);
-      this.pendingRole = role;
-      this.$root.$refs.toast?.show("身份已更新", "success");
-      this.closeIdentity();
-    },
+    async confirmIdentity() {
+  const role = this.pendingRole || this.roles[0];
+
+  // ★ 新增：写入数据库
+  await updateCareerStage(role);
+
+  // 原逻辑：更新 Vuex（立即刷新 UI）
+  this.setIdentityTag(role);
+
+  this.$root.$refs.toast?.show("身份已更新", "success");
+  this.closeIdentity();
+}
   },
 };
 </script>

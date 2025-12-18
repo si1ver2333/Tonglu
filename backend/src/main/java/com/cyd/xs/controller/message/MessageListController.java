@@ -1,7 +1,7 @@
 package com.cyd.xs.controller.message;
 
-
 import com.cyd.xs.Utils.ResultVO;
+import com.cyd.xs.config.CustomUserPrincipal;
 import com.cyd.xs.dto.message.DTO.MessageListQueryDTO;
 import com.cyd.xs.dto.message.VO.MessageListVO;
 import com.cyd.xs.service.MessageListService;
@@ -23,11 +23,11 @@ public class MessageListController {
     private MessageListService messageListService;
 
     /**
-     * 获取消息列表（支持筛选+分页）
+     * 获取消息列表（支持筛选 + 分页）
      */
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultVO<MessageListVO> getMessageList(
-            MessageListQueryDTO queryDTO, // Query参数自动绑定
+            MessageListQueryDTO queryDTO,
             Authentication authentication) {
 
         // 1. 校验登录状态
@@ -35,21 +35,23 @@ public class MessageListController {
             return ResultVO.error(401, "请先登录");
         }
 
-        // 2. 获取登录用户ID（消息接收者ID）
-        String userIdStr = (String) authentication.getPrincipal();
-        Long userId;
-        try {
-            userId = Long.parseLong(userIdStr);
-        } catch (NumberFormatException e) {
-            return ResultVO.error(400, "用户ID格式错误");
+        // 2. 正确获取登录用户
+        Object principalObj = authentication.getPrincipal();
+        if (!(principalObj instanceof CustomUserPrincipal)) {
+            return ResultVO.error(401, "用户信息异常");
         }
 
+        CustomUserPrincipal principal = (CustomUserPrincipal) principalObj;
+        Long userId = principal.getUserId();
+
         try {
-            // 3. 调用Service查询消息列表
-            MessageListVO messageListVO = messageListService.getMessageList(userId, queryDTO);
+            // 3. 调用 Service 查询消息列表
+            MessageListVO messageListVO =
+                    messageListService.getMessageList(userId, queryDTO);
+
             return ResultVO.success("获取成功", messageListVO);
         } catch (Exception e) {
-            // 4. 处理系统异常
+            // 4. 系统异常
             return ResultVO.error(500, "获取消息列表失败：" + e.getMessage());
         }
     }

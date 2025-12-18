@@ -1,8 +1,7 @@
 package com.cyd.xs.controller.message;
 
-
-
 import com.cyd.xs.Utils.ResultVO;
+import com.cyd.xs.config.CustomUserPrincipal;
 import com.cyd.xs.dto.message.DTO.MessageBatchOperateDTO;
 import com.cyd.xs.dto.message.VO.MessageDeleteVO;
 import com.cyd.xs.dto.message.VO.MessageReadVO;
@@ -14,9 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-
 /**
- * 消息操作接口（标记已读/删除）
+ * 消息操作接口（标记已读 / 删除）
  */
 @RestController
 @RequestMapping("/api/v1/message")
@@ -39,11 +37,10 @@ public class MessageOperateController {
             return ResultVO.error(401, "请先登录");
         }
 
-        // 2. 获取登录用户ID
-        String userIdStr = (String) authentication.getPrincipal();
-        Long userId = parseUserId(userIdStr);
+        // 2. 正确获取登录用户
+        Long userId = getCurrentUserId(authentication);
         if (userId == null) {
-            return ResultVO.error(400, "用户ID格式错误");
+            return ResultVO.error(401, "用户信息异常");
         }
 
         try {
@@ -62,16 +59,13 @@ public class MessageOperateController {
     @PutMapping(value = "/read/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResultVO<MessageReadVO> markAllRead(Authentication authentication) {
 
-        // 1. 校验登录状态
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResultVO.error(401, "请先登录");
         }
 
-        // 2. 获取登录用户ID
-        String userIdStr = (String) authentication.getPrincipal();
-        Long userId = parseUserId(userIdStr);
+        Long userId = getCurrentUserId(authentication);
         if (userId == null) {
-            return ResultVO.error(400, "用户ID格式错误");
+            return ResultVO.error(401, "用户信息异常");
         }
 
         try {
@@ -90,16 +84,13 @@ public class MessageOperateController {
             @Valid @RequestBody MessageBatchOperateDTO dto,
             Authentication authentication) {
 
-        // 1. 校验登录状态
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResultVO.error(401, "请先登录");
         }
 
-        // 2. 获取登录用户ID
-        String userIdStr = (String) authentication.getPrincipal();
-        Long userId = parseUserId(userIdStr);
+        Long userId = getCurrentUserId(authentication);
         if (userId == null) {
-            return ResultVO.error(400, "用户ID格式错误");
+            return ResultVO.error(401, "用户信息异常");
         }
 
         try {
@@ -113,13 +104,14 @@ public class MessageOperateController {
     }
 
     /**
-     * 工具方法：解析用户ID（String → Long）
+     * 统一获取当前登录用户 ID
      */
-    private Long parseUserId(String userIdStr) {
-        try {
-            return Long.parseLong(userIdStr);
-        } catch (NumberFormatException e) {
+    private Long getCurrentUserId(Authentication authentication) {
+        Object principalObj = authentication.getPrincipal();
+        if (!(principalObj instanceof CustomUserPrincipal)) {
             return null;
         }
+        CustomUserPrincipal principal = (CustomUserPrincipal) principalObj;
+        return principal.getUserId();
     }
 }

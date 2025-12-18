@@ -8,7 +8,7 @@
       <input v-model.trim="keyword" type="text" class="search-input" placeholder="搜索专家姓名/标签/关键词">
     </header>
 
-    <div class="tags">
+    <!-- <div class="tags">
       <button
         v-for="tag in tags"
         :key="tag"
@@ -17,7 +17,7 @@
       >
         {{ tag }}
       </button>
-    </div>
+    </div> -->
 
     <section class="card">
       <header class="section-header">

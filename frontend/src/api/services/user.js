@@ -16,7 +16,15 @@ export const fetchProfileOverview = async () => {
   const payload = await http.get('/api/user/profile');
   return unwrap(payload);
 };
-
+// src/api/services/user.js
+export const updateCareerStage = async (careerStage) => {
+  const payload = await http.put(
+    '/api/user/profile/career-stage',
+    null,
+    { params: { careerStage } }
+  );
+  return unwrap(payload);
+};
 // ===============================
 // ★★★ 关键修复：编辑个人资料
 // ===============================

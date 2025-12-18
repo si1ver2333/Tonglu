@@ -24,6 +24,6 @@ export const clearSearchHistory = async () => {
 };
 
 export const appendSearchHistory = async (keyword) => {
-  const payload = await http.post('/api/v1/search/history', { keyword });
+  const payload = await http.get('/api/v1/search/history', { keyword });
   return unwrap(payload);
 };
